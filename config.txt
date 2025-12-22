@@ -1,0 +1,42 @@
+# ---------- NAS Connection ----------
+NAS_URL=https://192.168.31.244
+NAS_PORT=5001
+
+# ---------- DSM Account ----------
+USERNAME=frogchou
+PASSWORD=yourpassword
+
+# ---------- 2FA (Mode B) ----------
+# First run: set OTP_CODE to current 6-digit code from your authenticator app.
+# The script will request enable_device_token and save DEVICE_ID back to this file.
+OTP_CODE=304185
+
+# Enable device token so future logins can omit OTP.
+ENABLE_DEVICE_TOKEN=yes
+
+# Any stable identifier string for this automation device.
+DEVICE_NAME=CertUploader
+
+# Will be filled automatically after first successful login with enable_device_token.
+DEVICE_ID=
+
+# ---------- Certificate Files (PEM) ----------
+CERT_PATH=/path/youdomain.com.cer                  # 证书
+KEY_PATH=/path/youdomain.com.key                   # 秘钥
+CA_PATH=/path/ca.cer                               # 中间证书
+
+
+# -------Save CERT ID---------
+CERT_ID=
+
+# ---------- Optional ----------
+# Used to match existing cert when listing; if empty, script will parse CN from CERT_PATH.
+CERT_DESC=youdomain.com
+
+# Verify DSM certificate (default no, because DSM 5001 often uses self-signed)
+# If you have a trusted cert on DSM UI, set CURL_INSECURE=no
+CURL_INSECURE=yes
+
+# Log directory
+LOG_DIR=/var/log/syno_cert_uploader
+
