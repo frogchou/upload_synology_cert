@@ -177,8 +177,30 @@ if [[ -z "$LOGIN_RAW" ]]; then
     code="$(err_code "$LOGIN_RAW")"
     if [[ "$code" == "403" || "$code" == "406" ]]; then
       log "  2FA required (code=$code). Attempt 3: OTP login with enable_device_token"
-      [[ -n "$OTP_CODE" && "$OTP_CODE" != "123456" ]] || die "First run needs OTP_CODE (set to current 6-digit)."
+      
+      # Prompt for OTP if missing/placeholder and interactive
+      if [[ (-z "$OTP_CODE" || "$OTP_CODE" == "123456") ]]; then
+        if [[ -t 0 ]]; then
+            printf "Enter 6-digit OTP Code: " >&2
+            read -r OTP_CODE
+        else
+            die "First run needs OTP_CODE (set to current 6-digit) in config.txt, or run interactively."
+        fi
+      fi
+
       LOGIN_RAW="$(login_otp_device)"
+      
+      # If failed with 404 (Invalid OTP) and interactive, retry once
+      if [[ "$(success "$LOGIN_RAW")" != "true" ]]; then
+           otp_err="$(err_code "$LOGIN_RAW")"
+           if [[ "$otp_err" == "404" && -t 0 ]]; then
+               log "  OTP code rejected (404). Please try again."
+               printf "Enter new 6-digit OTP Code: " >&2
+               read -r OTP_CODE
+               LOGIN_RAW="$(login_otp_device)"
+           fi
+      fi
+
       [[ "$(success "$LOGIN_RAW")" == "true" ]] || die "OTP login failed. See ${RUN_DIR}/login_otp.json"
       log "  OTP login succeeded."
     else
